@@ -35,11 +35,9 @@ struct ContentView: View {
                 isOn: $enableReporting
             ).onChange(of: enableReporting, initial: true) {
                 if enableReporting {
-                    print("turning on reporting")
                     loc.start()
                     defaults.set(true, forKey: ConfigurationKeys.enableReporting)
                 } else {
-                    print("turning off reporting")
                     loc.stop()
                     defaults.set(false, forKey: ConfigurationKeys.enableReporting)
                 }
@@ -49,7 +47,7 @@ struct ContentView: View {
                 Text("Endpoint")
                 TextField(
                     "https://",
-                    text: $endpoint).onChange(of: endpoint) {
+                    text: $endpoint).onChange(of: endpoint, initial: true) {
                         NetworkingService.shared.endpoint = endpoint
                         defaults.set(endpoint, forKey: ConfigurationKeys.endpoint)
                     }
@@ -59,7 +57,7 @@ struct ContentView: View {
                 Text("API Key")
                 TextField(
                     "eyXXXXXXXXX",
-                    text: $apikey).onChange(of: apikey) {
+                    text: $apikey).onChange(of: apikey, initial: true) {
                         NetworkingService.shared.apikey = apikey
                         defaults.set(apikey, forKey: ConfigurationKeys.apikey)
                     }
@@ -69,7 +67,7 @@ struct ContentView: View {
                 Text("User ID")
                 TextField(
                     "anonymous",
-                    text: $uid).onChange(of: uid) {
+                    text: $uid).onChange(of: uid, initial: true) {
                         NetworkingService.shared.uid = uid
                         defaults.set(uid, forKey: ConfigurationKeys.uid)
                     }

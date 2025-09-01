@@ -52,12 +52,35 @@ class LocationService: NSObject, ObservableObject, CLLocationManagerDelegate {
 
 class NetworkingService {
     static let shared = NetworkingService()
-    var apikey: String?
-    var endpoint: String?
-    var uid: String?
+    var last: Date?
+    
+    var apikey: String? {
+        didSet {
+            if apikey == "" { apikey = nil }
+        }
+    }
+    var endpoint: String? {
+        didSet {
+            if endpoint == "" { endpoint = nil }
+        }
+    }
+    var uid: String? {
+        didSet {
+            if uid == "" { uid = nil }
+        }
+    }
     
     func sendLocation(_ location: CLLocation) {
         print("sending location")
+        
+        if let l: Date = last {
+            if (l + 40) > Date.now {
+                print("cancelling: 40s limit")
+                return
+            }
+        }
+        last = Date.now
+        
         guard let url = URL(string: endpoint ?? Environment.endpoint) else { return }
         var req = URLRequest(url: url)
         req.httpMethod = "POST"
@@ -84,38 +107,6 @@ class NetworkingService {
     }
 }
 
-//class NetworkingService: NSObject, URLSessionDelegate, URLSessionTaskDelegate {
-//    static let shared = NetworkingService()
-//    
-//    private lazy var session: URLSession = {
-//        let config = URLSessionConfiguration.background(withIdentifier: "codes.towel.location-tracker")
-//        config.isDiscretionary = false
-//        return URLSession(configuration: config, delegate: self, delegateQueue: nil)
-//    }()
-//    
-//    func sendLocation(_ location: CLLocation) {
-//        let url = URL(string: "https://sgofzvpbietvmuaibcdm.supabase.co/functions/v1/ping")!
-//        var req = URLRequest(url: url)
-//        req.httpMethod = "POST"
-//        let body: [String : Any] = [
-//            "uid": "ios",
-//            "lat": location.coordinate.latitude,
-//            "long": location.coordinate.longitude
-//        ]
-//        req.httpBody = try? JSONSerialization.data(withJSONObject: body)
-//        req.setValue("application/json", forHTTPHeaderField: "Content-Type")
-//        
-//        session.dataTask(with: url) {(data, response, error) in
-//            guard let data = data else { return }
-//            print(String(data: data, encoding: .utf8)!)
-//        }
-////        session.uploadTask(with: req, from: req.httpBody!).resume()
-//    }
-//    
-//    // urlsessiondelegate methods can go here (handling auth, retries, etc.)
-//}
-
-
 @main
 struct location_trackerApp: App {
     @StateObject private var locService = LocationService()
@@ -127,7 +118,6 @@ struct location_trackerApp: App {
                 .onAppear {
                     print("hello world!!!!!")
                     locService.requestAuth()
-//                    locService.start()
                 }
         }
     }
