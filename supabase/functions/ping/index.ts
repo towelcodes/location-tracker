@@ -6,7 +6,7 @@
 import "jsr:@supabase/functions-js/edge-runtime.d.ts"
 
 console.info('server started');
-Deno.serve(async (req)=>{
+Deno.serve(async (req) => {
   const { uid, lat, long } = await req.json();
   const MAPS_API = Deno.env.get("MAPS_API")!;
   console.info("maps api: " + MAPS_API);
@@ -20,7 +20,7 @@ Deno.serve(async (req)=>{
           latitude: lat,
           longitude: long
         },
-        radius: 200.0
+        radius: 50.0
       }
     }
   };
@@ -41,7 +41,7 @@ Deno.serve(async (req)=>{
   const maps_data = await maps_res.json();
   const db_body = {
     uid: uid,
-    closest_place: maps_data["places"][0]["displayName"]["text"]
+    closest_place: maps_data["places"] == undefined ? "unknown" : maps_data["places"][0]["displayName"]["text"]
   };
   const db_res = await fetch(Deno.env.get("SUPABASE_URL") + "/rest/v1/logs", {
     method: "POST",
